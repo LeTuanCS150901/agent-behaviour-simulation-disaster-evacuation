@@ -1,0 +1,17 @@
+# Stage 4 active configuration reference - revised 2026-07-20
+model_version: "softmax_c1_v1"
+epsilon: 0.01
+c: 0.30
+q: 0.30
+probability_tolerance: 1.0e-9
+omega: 0.5
+beta_t: 1.0
+beta_a: 1.0
+panic_rate_distribution: "truncated_normal"
+panic_rate_mean: 0.5
+panic_rate_std: 0.2
+
+# W_s/W_g are raw scores; S_s/S_g are softmax shares; only V_p/V_s/V_g are
+# final mixture probabilities. theta_2 and beta_2 are analytically fixed and
+# cannot appear as free parameters. q and all behavioural parameters remain
+# uncalibrated pending research-lead review.

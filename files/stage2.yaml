@@ -1,0 +1,22 @@
+# stage2.yaml — Demand generation
+
+departure_lognorm_mu: 0.0
+# float. Location parameter (mean of underlying normal) of the log-normal departure
+# time distribution, per origin-zone -> shelter-destination pair.
+# source: assumption — needs validation.
+
+departure_lognorm_sigma: 0.5
+# float, > 0. Scale parameter (std of underlying normal) of the log-normal departure
+# time distribution.
+# source: assumption — needs validation.
+
+max_snap_distance: 200.0
+# float, meters, > 0. Maximum allowed distance when snapping a sampled origin point
+# to the nearest routable SUMO edge; snapping beyond this raises an error rather than
+# silently accepting an implausible mapping.
+# source: engineering default.
+
+vehicle_class: "passenger"
+# string. SUMO vClass used for edge-mapping and routing eligibility (spec: everyone
+# evacuates by car).
+# source: original spec.

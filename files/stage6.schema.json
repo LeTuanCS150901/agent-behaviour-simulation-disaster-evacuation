@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage6Config",
+  "type": "object",
+  "required": ["simfire_config_path", "ignition_edges_path", "src_crs", "sumo_crs", "poi_size", "output_add_xml_path"],
+  "properties": {
+    "simfire_config_path": {"type": "string", "minLength": 1},
+    "ignition_edges_path": {"type": "string", "minLength": 1},
+    "src_crs": {"type": "string", "pattern": "^EPSG:[0-9]+$"},
+    "sumo_crs": {"type": "string", "pattern": "^EPSG:[0-9]+$"},
+    "poi_size": {"type": "number", "exclusiveMinimum": 0},
+    "output_add_xml_path": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
