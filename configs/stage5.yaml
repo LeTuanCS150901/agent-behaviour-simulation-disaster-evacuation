@@ -1,0 +1,22 @@
+# stage5.yaml — Dynamic route choice
+
+delta_t: 60.0
+# float, seconds, > 0. Interval at which each evacuee's route choice is re-evaluated.
+# source: assumption — needs validation.
+
+alpha_t: 0.3
+# float, > 0. Utility weight on normalized travel time in U_k.
+# source: assumption — needs validation.
+
+alpha_h: 0.7
+# float, > 0. Utility weight on hazard exposure (1 - survival probability) in U_k.
+# source: assumption — needs validation.
+
+d_max: 2000.0
+# float, meters, > 0. Maximum "safe" distance from the disaster used to normalize per-edge
+# survival probability P_i = d_i / d_max.
+# source: assumption — needs validation.
+
+k_alternative_routes: 4
+# int, > 0. Number of candidate routes generated per agent per re-evaluation window.
+# source: engineering default.

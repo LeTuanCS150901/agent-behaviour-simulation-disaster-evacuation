@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Configuration-driven link-flow visualization revision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["visualization_contract_version", "schema", "source_run", "output", "network", "traffic_flow", "combined_flow_risk", "cumulative_flow_fire", "risk_exposure_time_series"],
+  "properties": {
+    "visualization_contract_version": {"type": "string", "minLength": 1},
+    "schema": {"type": "string", "minLength": 1},
+    "source_run": {
+      "type": "object", "additionalProperties": false,
+      "required": ["output_root", "expected_resolved_config_sha256", "flow_table", "flow_table_sha256", "hazard_table", "hazard_table_sha256", "fire_cell_table", "fire_cell_table_sha256"],
+      "properties": {
+        "output_root": {"type": "string", "minLength": 1},
+        "expected_resolved_config_sha256": {"$ref": "#/$defs/hash"},
+        "flow_table": {"type": "string", "minLength": 1},
+        "flow_table_sha256": {"$ref": "#/$defs/hash"},
+        "hazard_table": {"type": "string", "minLength": 1},
+        "hazard_table_sha256": {"$ref": "#/$defs/hash"},
+        "fire_cell_table": {"type": "string", "minLength": 1},
+        "fire_cell_table_sha256": {"$ref": "#/$defs/hash"}
+      }
+    },
+    "output": {
+      "type": "object", "additionalProperties": false,
+      "required": ["directory", "manifest_filename", "format", "dpi", "figure_size_inches", "title"],
+      "properties": {
+        "directory": {"type": "string", "minLength": 1}, "manifest_filename": {"type": "string", "minLength": 1},
+        "format": {"type": "string", "minLength": 1}, "dpi": {"type": "integer", "minimum": 1},
+        "figure_size_inches": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "title": {"type": "string", "minLength": 1}
+      }
+    },
+    "network": {
+      "type": "object", "additionalProperties": false,
+      "required": ["background_color", "background_width", "background_alpha", "equal_axis"],
+      "properties": {
+        "background_color": {"type": "string"}, "background_width": {"type": "number", "exclusiveMinimum": 0},
+        "background_alpha": {"type": "number", "minimum": 0, "maximum": 1}, "equal_axis": {"type": "boolean"}
+      }
+    },
+    "traffic_flow": {"$ref": "#/$defs/traffic"},
+    "combined_flow_risk": {"$ref": "#/$defs/combined"},
+    "cumulative_flow_fire": {"$ref": "#/$defs/cumulative"},
+    "risk_exposure_time_series": {"$ref": "#/$defs/exposure"}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "times": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "number", "minimum": 0}},
+    "traffic": {
+      "type": "object", "additionalProperties": false,
+      "required": ["interval_starts_seconds", "metric", "color_map", "normalization", "power_gamma", "zero_flow_color", "minimum_active_width", "maximum_active_width", "show_edge_entry_markers", "minimum_marker_area", "maximum_marker_area", "marker_edge_color", "marker_edge_width", "marker_alpha", "filename_template"],
+      "properties": {
+        "interval_starts_seconds": {"$ref": "#/$defs/times"}, "metric": {"type": "string"}, "color_map": {"type": "string"},
+        "normalization": {"enum": ["global_power"]}, "power_gamma": {"type": "number", "exclusiveMinimum": 0},
+        "zero_flow_color": {"type": "string"}, "minimum_active_width": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_active_width": {"type": "number", "exclusiveMinimum": 0}, "show_edge_entry_markers": {"type": "boolean"},
+        "minimum_marker_area": {"type": "number", "minimum": 0}, "maximum_marker_area": {"type": "number", "exclusiveMinimum": 0},
+        "marker_edge_color": {"type": "string"}, "marker_edge_width": {"type": "number", "minimum": 0},
+        "marker_alpha": {"type": "number", "minimum": 0, "maximum": 1}, "filename_template": {"type": "string", "minLength": 1}
+      }
+    },
+    "combined": {
+      "type": "object", "additionalProperties": false,
+      "required": ["interval_starts_seconds", "risk_metric", "risk_color_map", "risk_value_range", "flow_power_gamma", "zero_flow_safe_color", "zero_flow_safe_width", "zero_flow_risky_width", "minimum_active_width", "maximum_active_width", "show_zero_flow_risky_edges", "risk_zero_tolerance", "filename_template"],
+      "properties": {
+        "interval_starts_seconds": {"$ref": "#/$defs/times"}, "risk_metric": {"type": "string"}, "risk_color_map": {"type": "string"},
+        "risk_value_range": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}},
+        "flow_power_gamma": {"type": "number", "exclusiveMinimum": 0}, "zero_flow_safe_color": {"type": "string"},
+        "zero_flow_safe_width": {"type": "number", "exclusiveMinimum": 0}, "zero_flow_risky_width": {"type": "number", "exclusiveMinimum": 0},
+        "minimum_active_width": {"type": "number", "exclusiveMinimum": 0}, "maximum_active_width": {"type": "number", "exclusiveMinimum": 0},
+        "show_zero_flow_risky_edges": {"type": "boolean"}, "risk_zero_tolerance": {"type": "number", "minimum": 0},
+        "filename_template": {"type": "string", "minLength": 1}
+      }
+    },
+    "cumulative": {
+      "type": "object", "additionalProperties": false,
+      "required": ["metric", "aggregation", "color_map", "normalization", "power_gamma", "zero_flow_color", "minimum_active_width", "maximum_active_width", "show_edge_entry_markers", "minimum_marker_area", "maximum_marker_area", "marker_edge_color", "marker_edge_width", "marker_alpha", "fire_area_semantics", "fire_state_column", "fire_state_label", "fire_fill_color", "fire_edge_color", "fire_alpha", "fire_edge_width", "ignition_flag_column", "ignition_marker", "ignition_marker_color", "ignition_marker_edge_color", "ignition_marker_size", "filename"],
+      "properties": {
+        "metric": {"type": "string", "minLength": 1}, "aggregation": {"enum": ["sum_over_all_intervals"]},
+        "color_map": {"type": "string", "minLength": 1}, "normalization": {"enum": ["power"]},
+        "power_gamma": {"type": "number", "exclusiveMinimum": 0}, "zero_flow_color": {"type": "string"},
+        "minimum_active_width": {"type": "number", "exclusiveMinimum": 0}, "maximum_active_width": {"type": "number", "exclusiveMinimum": 0},
+        "show_edge_entry_markers": {"type": "boolean"}, "minimum_marker_area": {"type": "number", "minimum": 0},
+        "maximum_marker_area": {"type": "number", "exclusiveMinimum": 0}, "marker_edge_color": {"type": "string"},
+        "marker_edge_width": {"type": "number", "minimum": 0}, "marker_alpha": {"type": "number", "minimum": 0, "maximum": 1},
+        "fire_area_semantics": {"enum": ["ever_in_configured_state_across_all_snapshots"]},
+        "fire_state_column": {"type": "string", "minLength": 1}, "fire_state_label": {"type": "string", "minLength": 1},
+        "fire_fill_color": {"type": "string"}, "fire_edge_color": {"type": "string"},
+        "fire_alpha": {"type": "number", "minimum": 0, "maximum": 1}, "fire_edge_width": {"type": "number", "minimum": 0},
+        "ignition_flag_column": {"type": "string", "minLength": 1}, "ignition_marker": {"type": "string", "minLength": 1},
+        "ignition_marker_color": {"type": "string"}, "ignition_marker_edge_color": {"type": "string"},
+        "ignition_marker_size": {"type": "number", "exclusiveMinimum": 0}, "filename": {"type": "string", "minLength": 1}
+      }
+    },
+    "exposure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["risk_metric", "high_risk_threshold", "comparison", "plot_metric", "line_label", "y_axis_label", "line_color", "marker", "line_width", "figure_size_inches", "filename", "table_filename"],
+      "properties": {
+        "risk_metric": {"type": "string", "minLength": 1},
+        "high_risk_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "comparison": {"enum": ["strictly_greater_than"]},
+        "plot_metric": {"enum": ["vehicle_edge_exposure_events"]},
+        "line_label": {"type": "string", "minLength": 1}, "y_axis_label": {"type": "string", "minLength": 1},
+        "line_color": {"type": "string"},
+        "marker": {"type": "string", "minLength": 1}, "line_width": {"type": "number", "exclusiveMinimum": 0},
+        "figure_size_inches": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "exclusiveMinimum": 0}},
+        "filename": {"type": "string", "minLength": 1}, "table_filename": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

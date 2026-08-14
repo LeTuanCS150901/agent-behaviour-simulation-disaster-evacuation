@@ -1,0 +1,399 @@
+# common_manhattan_test.yaml
+#
+# Canonical cross-machine contract for the synthetic Manhattan Stage 3-4-5-6
+# integration demonstration.
+#
+# IMPORTANT:
+# - Give this exact file, byte for byte, to both engineers.
+# - Do not rename it on either machine.
+# - Do not modify the older manhattan_test.yaml; this is a new contract.
+# - Both engineers must record this file's SHA-256 in their reports.
+# - The file is test-only. It does not approve scientific calibration or replace
+#   the Toulouse scenario configurations.
+
+file_contract:
+  canonical_filename: "common_manhattan_test.yaml"
+  canonical_repository_path: "configs/test/common_manhattan_test.yaml"
+  contract_version: "manhattan_stage3_stage6_integration_v1"
+  scenario_id: "manhattan_stage3_stage6_fire_demo"
+  classification:
+    - "synthetic"
+    - "uncalibrated"
+    - "test_only"
+    - "not_research_approved"
+  hash_policy:
+    algorithm: "SHA-256"
+    raw_file_hash_location: "external manifests and reports; never inside this self-referential file"
+    fail_if_engineer_hashes_differ: true
+
+# This map explicitly tells each engineer which top-level sections are operative.
+# A context_only section may be inspected for understanding but must not be executed
+# or modified by that role.
+role_read_map:
+  simfire_engineer:
+    apply_sections:
+      - "file_contract"
+      - "role_read_map.simfire_engineer"
+      - "shared_contract"
+      - "simfire_engineer_contract"
+    context_only_sections:
+      - "current_codebase_engineer_contract"
+    primary_responsibility: "generate and validate the portable fire handoff on Ubuntu"
+
+  current_codebase_engineer:
+    apply_sections:
+      - "file_contract"
+      - "role_read_map.current_codebase_engineer"
+      - "shared_contract"
+      - "current_codebase_engineer_contract"
+    context_only_sections:
+      - "simfire_engineer_contract"
+    primary_responsibility: "consume the fire handoff and run the Stage 3-4-5-6 Manhattan integration"
+
+# Everything in shared_contract is read by both engineers.
+# SimFire uses it to generate the fire artifacts. The current codebase uses the
+# same values to validate provenance and to compute edge/route risk.
+shared_contract:
+  reproducibility:
+    random_seed: 42
+    deterministic: true
+    rng_policy: "use separate RNG instances per subsystem; never depend on one shared mutable global RNG sequence"
+
+  network:
+    file: "data/test/manhattan.net.xml"
+    filename: "manhattan.net.xml"
+    sha256: "851232f644800d07d27c0566669a78960fbaaf6817f5c0060094d8027375bf87"
+    size_bytes: 18204419
+    sumo_network_version: "1.20"
+    vehicle_class: "passenger"
+
+    coordinate_frame:
+      name: "SUMO_LOCAL_METRES__UTM18_OFFSET"
+      crs_override_label: "TEST_LOCAL"
+      unit: "metre"
+      local_boundary_xyxy_m: [0.0, 0.0, 4081.8, 5178.91]
+      network_offset_xy_m: [-583333.31, -4507528.64]
+      projection: "+proj=utm +zone=18 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+      apply_epsg_2154_transform: false
+
+    expected_counts:
+      normal_edges: 1643
+      internal_edges: 8342
+      passenger_routeable_normal_edges: 1578
+      excluded_normal_non_passenger_edges: 65
+
+    geometry_contract:
+      edge_shape_source: "sumolib.edge.getShape()"
+      edge_length_source: "geometric centreline length"
+      use_lane_or_road_width: false
+      positive_intersection_tolerance_m: 1.0e-6
+
+  clock:
+    simulation_start_seconds: 0
+    simulation_end_seconds: 1800
+    sumo_step_seconds: 1
+    fire_update_seconds: 60
+    route_update_seconds: 60
+    include_initial_fire_snapshot: true
+    expected_fire_snapshot_count: 31
+    expected_fire_snapshot_times_seconds:
+      start: 0
+      stop: 1800
+      step: 60
+      inclusive_stop: true
+
+    fire_time_lookup:
+      method: "previous_snapshot"
+      interpolate: false
+      before_first_snapshot: "error"
+      after_last_snapshot: "hold_last"
+
+    update_event_order:
+      - "activate_fire_cell_snapshot"
+      - "activate_edge_hazard_snapshot"
+      - "update_fire_gui_if_enabled"
+      - "reevaluate_candidate_routes"
+      - "advance_sumo_one_step"
+
+    final_timestamp_policy: "activate and record t=1800, capture final diagnostics, then stop without requiring a later fire snapshot"
+
+  fire:
+    engine:
+      name: "SimFire"
+      version: "2.0.1"
+      execution_environment: "isolated Ubuntu Python 3.9 environment"
+      modify_installed_simfire: false
+
+    grid:
+      cell_width_m: 50.0
+      cell_height_m: 50.0
+      padding_m: 50.0
+      bounds_xyxy_m: [-50.0, -71.09, 4150.0, 5228.91]
+      rows: 106
+      columns: 84
+      expected_cell_count: 8904
+      row_origin: "top"
+      row_direction: "south"
+      column_direction: "east"
+      cell_id_format: "r{row:03d}_c{column:03d}"
+      simfire_array_index_order: "[row, column]"
+      simfire_coordinate_order: "[column, row]"
+      simfire_pixel_scale_ft: 164.04199475
+      boundary_tie_break: "half-open; boundary points belong eastward and southward, with outermost boundaries included"
+
+    # These are the two exact initial ignition edges. They are not hidden behind
+    # a source_field reference. Both start at t=0 in one shared SimFire manager.
+    ignition:
+      placement_method: "interpolate edge.getShape() centreline at normalized distance 0.5"
+      ignition_time_seconds: 0
+      simultaneous_in_one_simulation: true
+      fixed_insertion_order: true
+      sources:
+        - source_id: "fire_source_01"
+          edge_id: "1061622295#0"
+          expected_sumo_local_midpoint_xy_m: [2784.355, 4592.63]
+          expected_grid_cell_id: "r012_c056"
+          expected_simfire_column_row: [56, 12]
+        - source_id: "fire_source_02"
+          edge_id: "384178813#0"
+          expected_sumo_local_midpoint_xy_m: [965.0439016589895, 3551.000315343333]
+          expected_grid_cell_id: "r033_c020"
+          expected_simfire_column_row: [20, 33]
+
+    topography:
+      mode: "functional_flat"
+
+    fuel:
+      mode: "functional_chaparral"
+      seed: 42
+
+    weather:
+      wind:
+        model: "constant"
+        speed: 7.0
+        speed_unit: "mph"
+        direction_degrees: 90.0
+        direction_convention: "clockwise_from_north"
+      moisture:
+        value: 0.03
+        unit: "fraction"
+
+    spread:
+      update_duration_seconds: 60
+      maximum_fire_duration_updates: 5
+      diagonal_spread: true
+
+    allowed_runtime_states:
+      - "UNBURNED"
+      - "BURNING"
+      - "BURNED"
+    unknown_or_mitigation_state_policy: "error"
+
+    known_limitation:
+      interacting_fronts_validated: false
+      statement: "The two canonical fronts propagated but did not interact; the close-front fixture remains insertion-order-sensitive."
+
+  hazard:
+    model_id: "burning_only_length_weighted_edge_hazard_v1"
+
+    state_to_cell_hazard:
+      UNBURNED: 0.0
+      BURNING: 1.0
+      BURNED: 0.0
+    cell_hazard_symbol: "h_c(t)"
+    state_mapping_classification: "synthetic and uncalibrated"
+
+    cell_to_edge:
+      method: "length_weighted_centerline_overlap"
+      numerator: "sum over intersecting cells of h_c(t) multiplied by positive centreline intersection length"
+      denominator: "complete geometric edge centreline length"
+      edge_hazard_symbol: "H_e(t)"
+      minimum_coverage_fraction: 0.999
+      missing_cell_policy: "error"
+      missing_edge_policy: "error"
+      duplicate_edge_cell_policy: "error"
+      numerical_bound_tolerance: 1.0e-12
+
+    edge_survival_and_risk:
+      lambda: 1.0
+      lambda_classification: "diagnostic and uncalibrated"
+      survival_model: "S_e(t) = exp(-lambda * H_e(t))"
+      risk_model: "R_e(t) = 1 - S_e(t)"
+
+    route_survival_and_risk:
+      aggregation: "product of edge survivals, implemented in log space"
+      epsilon: 1.0e-12
+      survival_model: "S_k(t) = exp(sum over ordered route traversals of log(clip(S_e(t), epsilon, 1)))"
+      risk_model: "R_k(t) = 1 - S_k(t)"
+      repeated_edge_rule: "count once per traversal in the ordered route edge sequence"
+      future_fire_forecast: false
+      segmentation_sensitivity_acknowledged: true
+
+  visualization:
+    scientific_source: "fire_cell_time_series.parquet"
+    visualization_only_file: "fire.add.xml"
+    visualization_file_is_scientific_input: false
+    static_shape_type: "poly"
+    one_polygon_per_grid_cell: true
+    polygon_id_format: "fire_{cell_id}"
+    fill: true
+    cell_layer: 100
+    ignition_marker_layer: 101
+    initial_polygon_state_time_seconds: 0
+    runtime_update_backend: "traci.polygon.setColor"
+    update_only_changed_cells: true
+    colors_rgba:
+      UNBURNED: [0, 0, 0, 0]
+      BURNING: [255, 0, 0, 220]
+      BURNED: [80, 80, 80, 90]
+      IGNITION_MARKER: [255, 255, 0, 255]
+
+  artifact_contract:
+    bundle_directory_name: "manhattan_fire_handoff"
+    authoritative_scientific_files:
+      - "fire_cell_time_series.parquet"
+      - "fire_grid.parquet"
+      - "fire_grid_manifest.json"
+      - "fire_run_manifest.json"
+      - "effective_fire_config.yaml"
+      - "state_mapping_manifest.json"
+    reference_oracle_files:
+      - "reference_edge_cell_intersections.parquet"
+      - "reference_edge_hazard_time_series.parquet"
+    visualization_files:
+      - "fire.add.xml"
+    integrity_files:
+      - "SHA256SUMS"
+      - "handoff_manifest.json"
+    documentation_files:
+      - "fire_parameter_configuration.md"
+      - "simfire_to_sumo_integration_handoff.md"
+
+  validation_targets:
+    fire_snapshots: 31
+    fire_grid_rows: 106
+    fire_grid_columns: 84
+    cells_per_snapshot: 8904
+    fire_cell_time_series_rows: 276024
+    passenger_routeable_edges: 1578
+    positive_edge_cell_intersections: 6010
+    unmapped_passenger_routeable_edges: 0
+    minimum_edge_coverage_fraction: 0.999
+    edge_hazard_time_series_rows: 48918
+    ignition_source_count: 2
+
+############## Only the SimFire engineer applies this section. ##############
+simfire_engineer_contract:
+  input_directory_policy:
+    network_relative_path: "inputs/network/manhattan.net.xml"
+    common_config_relative_path: "inputs/config/common_manhattan_test.yaml"
+    preserve_inputs_read_only: true
+
+  output_directory: "outputs/manhattan_fire_handoff"
+
+  required_work:
+    - "document every effective fire parameter before export"
+    - "verify the common config and network hashes"
+    - "reuse the accepted canonical arrays only if every scientific fire field matches exactly"
+    - "otherwise stop and report all mismatches before any new scientific run"
+    - "produce the full portable artifact contract"
+    - "produce fire.add.xml for visualization only"
+    - "validate all exact cardinalities, geometry, orientation, states, hashes, and provenance"
+
+  forbidden_work:
+    - "do not run Stages 3, 4, or 5"
+    - "do not run the evacuation simulation"
+    - "do not modify installed SimFire"
+    - "do not modify the common configuration"
+    - "do not claim calibrated or Toulouse-valid fire behavior"
+    - "do not encode time using unsupported SUMO additional-file attributes"
+
+############## Only the current-codebase engineer applies this section. ##############
+current_codebase_engineer_contract:
+  current_codebase_paths:
+    common_config: "configs/test/common_manhattan_test.yaml"
+    schema_to_create_or_update: "configs/test/schemas/common_manhattan_test.schema.json"
+    received_fire_handoff_directory: "data/external/simfire/manhattan_fire_handoff"
+    integration_output_directory: "outputs/test/manhattan/integration"
+    final_report: "reports/manhattan_stage3_to_stage6_fire_integration.md"
+
+  # These existing stage files remain the source of parameters not explicitly
+  # overridden by this integration contract. Do not copy their full contents here.
+  existing_stage_configs:
+    stage3: "configs/stage3.yaml"
+    stage4: "configs/stage4.yaml"
+    stage5: "configs/stage5.yaml"
+    stage6: "configs/stage6.yaml"
+    precedence_rule: "For this Manhattan integration, this common contract overrides only conflicting test-network, clock, fire-input, hazard, and visualization fields. It does not authorize changes to Stage 3 or Stage 4 mathematics."
+
+  demand:
+    generation_mode: "explicit_test_origins"
+    vehicle_class: "passenger"
+    total_vehicles: 100
+    departure_generation:
+      method: "deterministic_even_linspace"
+      begin_seconds: 0
+      end_seconds: 300
+      inclusive_end: true
+      assignment_order: "origin list order, then vehicle index within each origin"
+    origins:
+      - edge_id: "384649121#0"
+        num_cars: 50
+      - edge_id: "350726028#0"
+        num_cars: 30
+      - edge_id: "464683329#0"
+        num_cars: 20
+
+  shelters:
+    total_capacity: 110
+    destinations:
+      - edge_id: "542258337#0"
+        capacity: 60
+      - edge_id: "68325062#0"
+        capacity: 50
+
+  runtime:
+    termination_policy: "run through t=1800 even if all vehicles arrive earlier, so the complete fire history and final GUI diagnostic are verified"
+    headless_mode:
+      use_scientific_fire_table: true
+      load_fire_add_xml: false
+      call_traci_polygon_api: false
+    gui_mode:
+      use_scientific_fire_table: true
+      load_fire_add_xml: true
+      update_fire_polygons_from_active_snapshot: true
+    require_headless_gui_scientific_parity: true
+
+  stage5_fire_integration:
+    hazard_provider_source: "locally recomputed edge_hazard_time_series.parquet"
+    prohibit_distance_to_fire_model: true
+    prohibit_d_max_for_fire_risk: true
+    route_utility: "U_k(t) = -alpha_t * normalized_travel_time_k(t) - alpha_h * R_k(t)"
+    shelter_destination_may_change_in_stage5: false
+    route_reconsideration_interval_seconds: 60
+    require_positive_risk_candidate_route: true
+    require_fire_response_in_risk_utility_or_probability: true
+
+  required_outputs:
+    - "validated_common_manhattan_test.yaml"
+    - "edge_cell_intersections.parquet"
+    - "edge_hazard_time_series.parquet"
+    - "route_risk_time_series.parquet"
+    - "route_choice_decisions.parquet"
+    - "Stage 3 assignment output"
+    - "Stage 4 shelter-choice output"
+    - "SUMO route and trip files"
+    - "headless simulation log"
+    - "GUI simulation log"
+    - "GUI screenshots at t=0,60,600,1200,1800 seconds"
+    - "input/output manifests and SHA256SUMS"
+    - "test results"
+    - "reports/manhattan_stage3_to_stage6_fire_integration.md"
+
+  forbidden_work:
+    - "do not install or run SimFire in the current codebase environment"
+    - "do not calculate risk from fire.add.xml colors or geometry"
+    - "do not modify the received scientific fire tables"
+    - "do not silently interpolate, pad, average, or substitute missing fire data"
+    - "do not modify Stage 3 or Stage 4 mathematics merely to make the demo pass"
+    - "do not claim Toulouse validation or physical fire calibration"

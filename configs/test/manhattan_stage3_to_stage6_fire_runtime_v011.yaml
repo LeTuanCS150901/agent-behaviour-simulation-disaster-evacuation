@@ -1,0 +1,286 @@
+
+
+runtime_contract_version: "1.2"
+
+common_contract:
+  path: "configs/test/common_manhattan_test.yaml"
+  expected_sha256: "f0fc58da9bcad9987a1be5d2feedfdad0cb7cab4117260291bc97f8c4452660d"
+  schema: "configs/test/schemas/common_manhattan_test.schema.json"
+
+runtime_schema: "configs/test/schemas/manhattan_stage3_to_stage6_fire_runtime.schema.json"
+
+handoff:
+  directory: "data/external/simfire/manhattan_fire_handoff_v007"
+  readme: "README.md"
+  checksum_manifest: "SHA256SUMS"
+  handoff_manifest: "handoff_manifest.json"
+  compatibility_manifest: "compatibility_manifest.json"
+  state_mapping_manifest: "state_mapping_manifest.json"
+  effective_fire_config: "effective_fire_config.yaml"
+  fire_grid: "fire_grid.parquet"
+  fire_grid_manifest: "fire_grid_manifest.json"
+  fire_cells: "fire_cell_time_series.parquet"
+  fire_run_manifest: "fire_run_manifest.json"
+  reference_mapping: "reference_edge_cell_intersections.parquet"
+  reference_hazard: "reference_edge_hazard_time_series.parquet"
+  visualization_additional: "fire.add.xml"
+  visualization_validation: "fire_add_validation.json"
+  provenance_common_contract: "provenance/common_manhattan_test.yaml"
+  provenance_network: "provenance/manhattan.net.xml"
+  fire_parameter_report: "reports/fire_parameter_configuration_v007.md"
+  interacting_fronts_report: "reports/interacting_fronts_v007.md"
+  integration_handoff_report: "reports/simfire_to_sumo_integration_handoff_v007.md"
+
+stage_configs:
+  stage3: "configs/stage3.yaml"
+  stage4: "configs/stage4.yaml"
+  stage5: "configs/stage5.yaml"
+  stage6: "configs/stage6.yaml"
+
+stage3_backend:
+  declared_config: "configs/stage3.yaml"
+  historical_declared_solver: "pulp"
+  actual_backend: "scipy_exact_capacity_slot"
+  authorized_substitution: true
+  authorization_reference: "research_lead_2026-07-22"
+  implementation_evidence: "evacuation_sim.shelter_allocation.pmedian.solve_per_vehicle_assignment"
+  regression_expectation: "exact minimum-cost capacity-slot assignment; all demand assigned; configured capacities respected"
+
+demand_override:
+  enabled: true
+  reason: "synthetic sensitivity study: four origins and three shelters"
+  demand:
+    total_vehicles: 120
+    origins:
+      - {edge_id: "384649121#0", num_cars: 50}
+      - {edge_id: "350726028#0", num_cars: 30}
+      - {edge_id: "464683329#0", num_cars: 20}
+      - {edge_id: "654561413", num_cars: 20}
+  shelters:
+    total_capacity: 150
+    destinations:
+      - {edge_id: "542258337#0", capacity: 60}
+      - {edge_id: "68325062#0", capacity: 50}
+      - {edge_id: "194926842", capacity: 40}
+
+execution:
+  run_id: "manhattan-stage3-stage6-fire-v011-demand-override"
+  output_root: "outputs/test/manhattan/integration/manhattan-stage3-stage6-fire-v011-demand-override"
+  fail_if_output_exists: true
+  modes:
+    headless_enabled: true
+    gui_enabled: false
+    parity_enabled: false
+  result_classification:
+    - "synthetic"
+    - "uncalibrated"
+    - "test_only"
+    - "not_research_approved"
+    - "interacting_fronts_unvalidated"
+  phases:
+    prepared_marker: "provenance/prepared_run.json"
+    validation_report: "provenance/validation_report.json"
+    headless_summary: "logs/headless_summary.json"
+    gui_summary: "logs/gui_summary.json"
+    parity_report: "diagnostics/headless_gui_parity.json"
+    final_manifest: "provenance/output_manifest.json"
+    checksums: "SHA256SUMS"
+
+outputs:
+  input_directory: "input"
+  stage3_directory: "stage3"
+  stage4_directory: "stage4"
+  stage5_directory: "stage5"
+  fire_directory: "fire"
+  sumo_directory: "sumo"
+  figures_directory: "figures"
+  diagnostics_directory: "diagnostics"
+  logs_directory: "logs"
+  provenance_directory: "provenance"
+  reports_directory: "reports"
+  mapping_table: "edge_cell_intersections.parquet"
+  mapping_coverage_table: "edge_cell_coverage.parquet"
+  hazard_table: "edge_hazard_time_series.parquet"
+  route_risk_table: "route_risk_time_series.parquet"
+  decision_table: "route_choice_decisions.parquet"
+  flow_table: "edge_traffic_flow_time_series.parquet"
+  avoidance_table: "risk_avoidance_diagnostics.parquet"
+  route_file: "evacuation.rou.xml"
+  headless_config: "headless.sumocfg"
+  gui_config: "gui.sumocfg"
+  tripinfo_headless: "headless.tripinfo.xml"
+  tripinfo_gui: "gui.tripinfo.xml"
+  run_report: "manhattan_stage3_to_stage6_fire_integration.md"
+  visualization_manifest: "visualization_manifest.json"
+
+rng:
+  derivation: "numpy_seedsequence_spawn_key_v1"
+  stage4_stream:
+    policy: "direct_common_seed_preserve_approved_stage4"
+    name: "stage4"
+  stage5_stream:
+    name: "stage5_route_choice"
+    spawn_key: [5]
+  sumo_stream:
+    name: "sumo"
+    spawn_key: [6]
+
+sumo:
+  headless_binary: "sumo"
+  gui_binary: "sumo-gui"
+  expected_version: "1.27.0"
+  route_vehicle_type_id: "passenger"
+  no_step_log: true
+  quit_on_end: false
+  start: true
+  teleport_seconds: -1
+  gui_settings_file: null
+  screenshot_backend: "traci_gui_screenshot"
+  screenshot_view_id: "View #0"
+  screenshot_filename_template: "gui_t{time_seconds:04d}.png"
+  random_seed_min: 0
+  random_seed_max: 2147483647
+
+validation:
+  hash_algorithm: "SHA-256"
+  mapping_absolute_tolerance_m: 1.0e-8
+  mapping_relative_tolerance: 1.0e-10
+  hazard_absolute_tolerance: 1.0e-12
+  hazard_relative_tolerance: 1.0e-10
+  probability_tolerance: 1.0e-9
+  route_destination_required: true
+  reject_duplicate_keys: true
+  hazard_footprint:
+    peak_simultaneous_hazardous_edges: 218
+    peak_time_seconds: 1260
+    distinct_edges_ever_hazardous: 383
+    hazardous_edges_at_initial_time: 8
+
+traffic_flow:
+  metric: "vehicle_edge_entries"
+  window_seconds: 60
+  interval_closure: "left_closed_right_open"
+  include_unique_vehicle_count: true
+  include_complete_zero_flow_rows: true
+  output_filename: "edge_traffic_flow_time_series.parquet"
+
+avoidance_analysis:
+  enabled: true
+  comparison: "decision_probability_with_hazard_term_zero"
+  zero_tolerance: 1.0e-12
+  risk_bins: [0.0, 0.01, 0.1, 0.25, 0.5, 0.75, 1.0]
+  output_filename: "risk_avoidance_diagnostics.parquet"
+
+visualization:
+  enabled: true
+  output_format: "png"
+  dpi: 160
+  figure_size_inches: [10.0, 12.0]
+  coordinate_frame: "TEST_LOCAL"
+  equal_axis: true
+  font_family: "DejaVu Sans"
+  network_color: "#c8c8c8"
+  missing_color: "#ff00ff"
+  evidence_times_seconds: [0, 60, 600, 1200, 1800]
+  gui_screenshot_times_seconds: [0, 60, 600, 1200, 1800]
+  fire_spread:
+    enabled: true
+    state_colors:
+      UNBURNED: "#00000000"
+      BURNING: "#ff0000dc"
+      BURNED: "#5050505a"
+    filename_template: "fire_spread_t{time_seconds:04d}.png"
+  edge_risk:
+    enabled: true
+    metric: "edge_risk"
+    color_map: "inferno"
+    normalization: "fixed"
+    value_range: [0.0, 1.0]
+    line_width: 1.0
+    filename_template: "edge_risk_t{time_seconds:04d}.png"
+  traffic_flow:
+    enabled: true
+    interval_starts_seconds: [0, 60, 600, 1200, 1740]
+    color_map: "viridis"
+    normalization: "global_across_selected_intervals"
+    line_width: 1.2
+    filename_template: "traffic_flow_t{interval_start_seconds:04d}_to_{interval_end_seconds:04d}.png"
+  combined_flow_risk:
+    enabled: true
+    risk_encoding: "edge_color"
+    flow_encoding: "edge_width"
+    risk_color_map: "inferno"
+    min_edge_width: 0.2
+    max_edge_width: 4.0
+    show_zero_flow_risky_edges: true
+    filename_template: "traffic_flow_risk_t{interval_start_seconds:04d}_to_{interval_end_seconds:04d}.png"
+  route_risk_fire_evolution:
+    enabled: true
+    recording_interval_seconds: 1.0
+    display_time_unit: "seconds"
+    vehicle_table_filename: "active_vehicle_route_risk_time_series.parquet"
+    derived_table_filename: "vehicle_route_risk_fire_evolution_time_series.parquet"
+    figure_filename: "vehicle_route_risk_and_fire_evolution.png"
+    output_format: "png"
+    dpi: 200
+    figure_size_inches: [12.0, 10.0]
+    subplot_height_ratios: [1.0, 1.0]
+    subplot_spacing: 0.12
+    mean_risk_color: "#1f77b4"
+    mean_risk_line_style: "-"
+    mean_risk_line_width: 2.0
+    mean_risk_label: "Mean remaining-route risk of active vehicles"
+    mean_risk_y_label: "Mean remaining-route risk"
+    mean_risk_legend_location: "upper right"
+    burning_state_label: "BURNING"
+    burned_state_label: "BURNED"
+    fire_state_column: "canonical_state_label"
+    burning_color: "#d62728"
+    burned_color: "#4d4d4d"
+    burning_line_style: "-"
+    burned_line_style: "-"
+    fire_line_width: 2.0
+    burning_label: "Currently burning cells"
+    burned_label: "Burned cells"
+    fire_count_y_label: "Number of fire cells"
+    fire_legend_location: "upper left"
+    title: "Vehicle Route Risk and Fire Evolution Over Time"
+    x_axis_label: "Simulation time (seconds)"
+    route_risk_axis_limits: [0.0, 1.0]
+    fire_count_axis_policy: "auto_zero_to_data_max_with_headroom"
+    fire_count_headroom_fraction: 0.05
+    missing_value_policy: "gap"
+    numerical_tolerance: 1.0e-9
+    grid_color: "#d7dce2"
+    grid_alpha: 0.8
+    rendering_metadata:
+      Creator: "behaviour-eva configuration-driven integration"
+      Description: "Deterministic descriptive scientific visualization"
+      Software: "matplotlib"
+
+reporting:
+  reproduction_guide: "reports/manhattan_stage3_to_stage6_fire_pipeline_reproduction.md"
+  repository_report_path: "reports/manhattan_stage3_to_stage6_demand_override_v011.md"
+  contract_replacement:
+    archive_path: "configs/test/archive/common_manhattan_test__3d1a6ef7.yaml"
+    previous_engineer_copy_path: "data/external/simfire/manhattan_fire_handoff/provenance/common_manhattan_test.yaml"
+    displaced_sha256: "3d1a6ef7fb1f00414425d730678f3260318067ad4d2cf1b9d91e7628c1e07152"
+    displaced_size_bytes: 14652
+    parsed_yaml_identical_to_previous_engineer_copy: true
+    diff_summary:
+      - "The SimFire-engineer section comment gained a 28-byte banner decoration."
+      - "The current-codebase-engineer section comment gained a 28-byte banner decoration."
+      - "The two cosmetic comment edits explain the complete 56-byte difference and changed no parsed YAML value."
+  title: "Manhattan Stage 3–6 Demand Override v011"
+  formula_units:
+    cell_hazard: "h_c(t)=configured state mapping; dimensionless"
+    edge_hazard: "H_e(t)=sum_c h_c(t)*ell_e,c/L_e; lengths in metres; H_e dimensionless"
+    edge_survival: "S_e(t)=exp(-lambda*H_e(t)); dimensionless"
+    edge_risk: "R_e(t)=1-S_e(t); dimensionless"
+    route_survival: "S_k(t)=exp(sum_e log(clip(S_e(t),epsilon,1))); dimensionless"
+    route_risk: "R_k(t)=1-S_k(t); dimensionless"
+    route_utility: "U_k(t)=-alpha_t*normalized_travel_time_k-alpha_h*R_k(t); dimensionless"
+    panic_mixture: "P_final=(1-panic_rate)*softmax(U)+panic_rate*uniform"
+    risk_neutral: "same calculation with only alpha_h*R_k set to zero"
+
+

@@ -1,0 +1,101 @@
+visualization_contract_version: "flow_clarity_v2"
+schema: "configs/test/schemas/manhattan_stage3_to_stage6_flow_visualization.schema.json"
+
+source_run:
+  output_root: "outputs/test/manhattan/integration/manhattan-stage3-stage6-fire-v003"
+  expected_resolved_config_sha256: "f49018b51d961e10b27444f3cb99f6bd30ccfe65e154366b84d12eadde242390"
+  flow_table: "stage5/headless/edge_traffic_flow_time_series.parquet"
+  flow_table_sha256: "df205942b7700163316e215b8456aa433c3a97569e1a23ea9cff47ea5fd597b8"
+  hazard_table: "fire/edge_hazard_time_series.parquet"
+  hazard_table_sha256: "176d6247ca41415f7dfc3dfb274a28981b3c8e0ec901c184de98bdf0e473a423"
+  fire_cell_table: "data/external/simfire/manhattan_fire_handoff/fire_cell_time_series.parquet"
+  fire_cell_table_sha256: "79c7a2e0e991735062361d81d36ffa1d53c9ed025eaee3d5b7031a63a6f3084f"
+
+output:
+  directory: "figures/flow_clarity_v2"
+  manifest_filename: "flow_visualization_manifest.json"
+  format: "png"
+  dpi: 200
+  figure_size_inches: [12.0, 14.0]
+  title: "Manhattan link traffic flow"
+
+network:
+  background_color: "#d7dce2"
+  background_width: 0.45
+  background_alpha: 0.85
+  equal_axis: true
+
+traffic_flow:
+  interval_starts_seconds: [0, 60, 180, 300, 420, 600, 900, 1200, 1680, 1740]
+  metric: "vehicle_edge_entries"
+  color_map: "turbo"
+  normalization: "global_power"
+  power_gamma: 0.45
+  zero_flow_color: "#d7dce2"
+  minimum_active_width: 1.4
+  maximum_active_width: 6.0
+  show_edge_entry_markers: true
+  minimum_marker_area: 18.0
+  maximum_marker_area: 105.0
+  marker_edge_color: "#ffffff"
+  marker_edge_width: 0.35
+  marker_alpha: 0.95
+  filename_template: "traffic_flow_clear_t{interval_start_seconds:04d}_to_{interval_end_seconds:04d}.png"
+
+combined_flow_risk:
+  interval_starts_seconds: [0, 60, 180, 300, 420, 600, 900, 1200, 1680, 1740]
+  risk_metric: "edge_risk"
+  risk_color_map: "coolwarm"
+  risk_value_range: [0.0, 1.0]
+  flow_power_gamma: 0.45
+  zero_flow_safe_color: "#d7dce2"
+  zero_flow_safe_width: 0.4
+  zero_flow_risky_width: 0.8
+  minimum_active_width: 1.4
+  maximum_active_width: 6.0
+  show_zero_flow_risky_edges: true
+  risk_zero_tolerance: 1.0e-12
+  filename_template: "traffic_flow_risk_clear_t{interval_start_seconds:04d}_to_{interval_end_seconds:04d}.png"
+
+cumulative_flow_fire:
+  metric: "vehicle_edge_entries"
+  aggregation: "sum_over_all_intervals"
+  color_map: "viridis"
+  normalization: "power"
+  power_gamma: 0.45
+  zero_flow_color: "#d7dce2"
+  minimum_active_width: 1.4
+  maximum_active_width: 7.0
+  show_edge_entry_markers: false
+  minimum_marker_area: 18.0
+  maximum_marker_area: 105.0
+  marker_edge_color: "#ffffff"
+  marker_edge_width: 0.35
+  marker_alpha: 0.95
+  fire_area_semantics: "ever_in_configured_state_across_all_snapshots"
+  fire_state_column: "canonical_state_label"
+  fire_state_label: "BURNING"
+  fire_fill_color: "#ff3b30"
+  fire_edge_color: "#9b0000"
+  fire_alpha: 0.20
+  fire_edge_width: 0.20
+  ignition_flag_column: "is_ignition"
+  ignition_marker: "*"
+  ignition_marker_color: "#ffd60a"
+  ignition_marker_edge_color: "#4a1c00"
+  ignition_marker_size: 145.0
+  filename: "cumulative_traffic_flow_with_ever_burning_fire_area.png"
+
+risk_exposure_time_series:
+  risk_metric: "edge_risk"
+  high_risk_threshold: 0.5
+  comparison: "strictly_greater_than"
+  plot_metric: "vehicle_edge_exposure_events"
+  line_label: "High-risk edge-entry events"
+  y_axis_label: "High-risk edge-entry events per interval"
+  line_color: "#d62728"
+  marker: "o"
+  line_width: 2.2
+  figure_size_inches: [12.0, 6.0]
+  filename: "high_risk_vehicle_exposure_over_time_threshold_gt_0.50.png"
+  table_filename: "high_risk_vehicle_exposure_over_time_threshold_gt_0.50.csv"

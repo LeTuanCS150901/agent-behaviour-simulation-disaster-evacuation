@@ -1,0 +1,236 @@
+runtime_contract_version: "risk_plots_sidecar_v010"
+runtime_schema: "configs/test/schemas/manhattan_stage3_to_stage6_risk_plots.schema.json"
+
+common_contract:
+  path: "configs/test/common_manhattan_test.yaml"
+  expected_sha256: "f0fc58da9bcad9987a1be5d2feedfdad0cb7cab4117260291bc97f8c4452660d"
+  schema: "configs/test/schemas/common_manhattan_test.schema.json"
+
+source_run:
+  output_root: "outputs/test/manhattan/integration/manhattan-stage3-stage6-fire-v009"
+  expected_resolved_config_sha256: "ac0c8b056b691aac49b24a45310241d1529b948eb411690a7336e7c575e311f9"
+  expected_tree_sha256: "e67f29d781d6baf0eac466f885d8b6a834fcb8aafc88f97d234bb2441d515441"
+  config_source_manifest: "provenance/config_source_manifest.json"
+  config_source_manifest_sha256: "cd5045760d289cafc42d8e551e51d3a80f83ff48f721034960e05a9266054faf"
+  active_vehicle_table: "stage5/headless/active_vehicle_route_risk_time_series.parquet"
+  active_vehicle_table_sha256: "b38823ff0dd7b939d32ba2ddf2438f0d25d011adcbcac4fa6375b1c1efb7d1d0"
+  hazard_table: "fire/edge_hazard_time_series.parquet"
+  hazard_table_sha256: "36f079d39dda9ca973df60318bee32ae918b481bc0b536dd637aed98606d6999"
+  tripinfo: "sumo/headless.tripinfo.xml"
+  tripinfo_sha256: "7533fcf452747fa3249e06507997801b8e8fec43a0514b66706f77fd85467ae8"
+  route_choice_table: "stage5/headless/route_choice_decisions.parquet"
+  route_choice_table_sha256: "607f5d25c151054323e16ea548220fcb245d86f7c0fc93a41765f4d36eecdcc6"
+  edge_cell_mapping_table: "fire/edge_cell_intersections.parquet"
+  edge_cell_mapping_table_sha256: "c0ff279756eb97a9bc25a182032f8c45d198f676905ef96b5a776b9b017ed045"
+
+spatial_sources:
+  handoff_root: "data/external/simfire/manhattan_fire_handoff_v007"
+  expected_tree_sha256: "885adc9f880dae4cc4b6faff740afef48006cb85b0a9fb2818670b317eb1eb5b"
+  checksums: "SHA256SUMS"
+  checksums_sha256: "08110a19ce1923e642e73c6dbbd92a9e504cfc13b26df6b0672bda55397122b3"
+  manifest: "handoff_manifest.json"
+  manifest_sha256: "d7ddb7462268e9caf95ffea372b676cddbc5d46e5c03fefd7c86b5c829f4889b"
+  fire_state_table: "fire_cell_time_series.parquet"
+  fire_state_table_sha256: "15ff3e7e19009214156b8f860d163e305f4828fc954f7d4ffc113b9d99ee69c8"
+  fire_grid_table: "fire_grid.parquet"
+  fire_grid_table_sha256: "0fd82531d1614ff1449f167a2b7cb0f9f1f191081bbcb345e8f80d34a83df776"
+  network: "provenance/manhattan.net.xml"
+  network_sha256: "851232f644800d07d27c0566669a78960fbaaf6817f5c0060094d8027375bf87"
+
+execution:
+  run_id: "manhattan-stage3-stage6-fire-v009-risk-plots-v010"
+  output_root: "outputs/test/manhattan/integration/manhattan-stage3-stage6-fire-v009-risk-plots-v010"
+  fail_if_output_exists: true
+  transactional_rebuild_existing: true
+  preserve_byte_identical:
+    - "tables/per_agent_route_risk_time_series.parquet"
+    - "tables/model_level_route_risk_time_series.parquet"
+    - "tables/cumulative_arrival_time_series.parquet"
+    - "tables/cell_ignition_time.parquet"
+    - "tables/driven_route_trace.parquet"
+    - "figures/cumulative_arrival_rate.png"
+    - "figures/per_agent_route_risk_all_agents_sample.png"
+    - "figures/per_agent_route_risk_exposed_agents_sample.png"
+    - "figures/model_level_route_risk.png"
+  result_classification:
+    - "synthetic"
+    - "uncalibrated"
+    - "test_only"
+    - "not_research_approved"
+    - "interacting_fronts_unvalidated"
+
+derivation:
+  risk_interval_seconds: 60
+  arrival_interval_seconds: 1
+  fleet_size: 100
+  sampling_seed: 42
+  sample_size: 10
+  sampling_populations: ["all_agents", "risk_exposed_agents"]
+  hazard_time_lookup: "previous_snapshot"
+  interpolation: "none"
+  internal_edge_prefix: ":"
+  activity_boundary: "arrival_timestamp_inclusive_pre_movement"
+  risk_zero_tolerance: 1.0e-12
+  numerical_tolerance: 1.0e-10
+  x_axis_anchor: "last_arrival"
+  x_axis_offset_seconds: 10
+  interval_sensitivity_seconds: [60, 30, 20, 15, 12, 10, 6, 5, 4, 3, 2, 1]
+
+tables:
+  directory: "tables"
+  per_agent: "per_agent_route_risk_time_series.parquet"
+  model: "model_level_route_risk_time_series.parquet"
+  arrival: "cumulative_arrival_time_series.parquet"
+  cell_ignition: "cell_ignition_time.parquet"
+  driven_trace: "driven_route_trace.parquet"
+  route_edge_activity: "route_edge_activity_summary.parquet"
+
+visualization:
+  directory: "figures"
+  format: "png"
+  dpi: 200
+  font_family: "DejaVu Sans"
+  grid_color: "#d7dce2"
+  grid_alpha: 0.8
+  rendering_metadata:
+    Creator: "behaviour-eva v010 risk-plots sidecar"
+    Description: "Deterministic derived visualization; source scientific tables are immutable"
+    Software: "matplotlib"
+  arrival:
+    enabled: true
+    filename: "cumulative_arrival_rate.png"
+    figure_size_inches: [12.0, 6.0]
+    title: "Cumulative Vehicle Arrival Rate"
+    x_label: "Simulation time (minutes)"
+    y_label: "Vehicles arrived (% of total fleet)"
+    line_width: 2.4
+    line_color: "#2ca02c"
+    y_limits: [0.0, 100.0]
+    annotation_template: "Final arrival rate: {arrival_percentage:.1f}% ({arrived_count}/{fleet_size}); {non_arrived_count} vehicles did not arrive by {simulation_end_seconds:.0f} s"
+  per_agent:
+    enabled: true
+    filenames:
+      all_agents: "per_agent_route_risk_all_agents_sample.png"
+      risk_exposed_agents: "per_agent_route_risk_exposed_agents_sample.png"
+    figure_size_inches: [13.0, 7.5]
+    titles:
+      all_agents: "Per-Agent Traversed-Route Risk — Uniform Sample from All Agents"
+      risk_exposed_agents: "Per-Agent Traversed-Route Risk — Uniform Sample from Risk-Exposed Agents"
+    x_label: "Simulation time (seconds)"
+    y_label: "Traversed-route risk R_i(t)"
+    line_width: 1.8
+    color_map: "tab10"
+    terminal_marker: "o"
+    terminal_marker_size: 5.0
+    y_limits: [0.0, 1.0]
+    legend_columns: 2
+    annotation_template: "60 s sampling detects {sampled_exposed_count} agents; 1 s observations detect {one_second_exposed_count}. {non_arrived_count} vehicles remain active after the last arrival at {last_arrival_seconds:.0f} s. Display ends at {display_end_seconds:.0f} s; simulation ends at {simulation_end_seconds:.0f} s."
+  model:
+    enabled: true
+    filename: "model_level_route_risk.png"
+    figure_size_inches: [12.0, 6.5]
+    title: "Model-Level Traversed-Route Risk"
+    x_label: "Simulation time (seconds)"
+    y_label: "R_model(t) = sum of R_i(t) over all agents"
+    line_width: 2.4
+    line_color: "#d62728"
+    terminal_marker: "o"
+    terminal_marker_size: 6.0
+    y_axis_policy: "zero_to_data_max_with_headroom"
+    headroom_fraction: 0.08
+    annotation_template: "60 s sampling detects {sampled_exposed_count} agents; 1 s observations detect {one_second_exposed_count}. {non_arrived_count} vehicles remain active after the last arrival at {last_arrival_seconds:.0f} s. Display ends at {display_end_seconds:.0f} s; simulation ends at {simulation_end_seconds:.0f} s."
+  spatial_fire_route_map:
+    enabled: true
+    filename: "spatial_fire_and_driven_route_time_map.png"
+    figure_size_inches: [14.0, 12.0]
+    title: "Manhattan Fire Ignition and Driven Routes on a Shared Time Scale"
+    x_label: "SUMO local x (m)"
+    y_label: "SUMO local y (m)"
+    trace_source: "driven_path"
+    route_rendering: "edge_width_lines"
+    include_internal_edges: false
+    draw_order: ["network", "fire", "traces", "interaction_marking"]
+    road_cells:
+      cell_size_m: 50.0
+      fill_color: "#e3e7ea"
+      alpha: 0.72
+      edge_color: "#c8cdd2"
+      edge_linewidth: 0.12
+      legend_label: "50 m cell crossed by a passenger-routeable road"
+    fire_cells:
+      alpha: 0.78
+      edge_color: "#30343b"
+      edge_linewidth: 0.18
+      legend_label: "Cell that burns; colour is first ignition time"
+    route_lines:
+      overlap_measure: "distinct_vehicles_per_edge"
+      time_statistic: "median_vehicle_presence_time_seconds"
+      width_scale: "linear"
+      minimum_width_points: 0.45
+      maximum_width_points: 5.0
+      alpha: 0.92
+      casing_color: "#ffffff"
+      casing_alpha: 0.90
+      casing_extra_width_points: 0.90
+      width_legend_values: [1, 10, 25, 50]
+      width_legend_title: "Distinct vehicles using link"
+      legend_label: "Driven road link; colour is typical occupancy time"
+    interaction_hatch: "////"
+    interaction_edge_color: "#202124"
+    interaction_linewidth: 0.45
+    interaction_legend_label: "First burn during unvalidated interacting-fronts window"
+    time_colour:
+      vmin_seconds: 0.0
+      vmax_seconds: 1800.0
+      colormap: "plasma"
+      colorbar_label: "Simulation time (seconds): fire ignition and typical link occupancy"
+      lightness_samples: 256
+      lightness_tolerance: 1.0e-6
+    axis_equal: true
+    background_color: "#ffffff"
+    caption_font_size: 8.0
+    caption_bottom_margin_fraction: 0.065
+    caption: |-
+      Grey squares: 50 m road cells. Coloured squares: first fire ignition. Coloured lines: median vehicle-presence time; width: distinct vehicles.
+      Fire and routes share one time scale. Hatched cells: unvalidated interacting-fronts physics.
+
+acceptance:
+  nonzero_agents: 40
+  maximum_agent_risk: 0.7185318138
+  positive_model_times: 28
+  peak_model_risk: 13.8568279318
+  peak_model_time_seconds: 1080
+  advisory_nonzero_cells: 245
+  minimum_nonzero_cells: 240
+  maximum_nonzero_cells: 253
+  one_second_exposed_agents: 66
+  ever_hazardous_edge_agents: 91
+  arrived_agents: 74
+  first_arrival_seconds: 217
+  last_arrival_seconds: 1171
+  interacting_fronts_snapshot_times_seconds: [1500, 1560, 1620, 1680, 1740, 1800]
+  spatial_map:
+    total_grid_cells: 8904
+    burning_cells: 1374
+    interacting_ignition_cells: 182
+    vehicle_traces: 100
+    distinct_normal_edges: 436
+    excluded_internal_observations: 10627
+    trace_runs: 3332
+    fire_ignition_time_range_seconds: [0.0, 1800.0]
+    trace_entry_time_range_seconds: [1.0, 1797.0]
+    route_presence_time_range_seconds: [1.0, 1800.0]
+    route_median_occupancy_time_range_seconds: [79.0, 1793.5]
+    road_grid_cells: 3128
+    maximum_distinct_vehicles_per_edge: 52
+    coordinate_frame: "SUMO_LOCAL_METRES__UTM18_OFFSET"
+    grid_extent: [-50.0, -71.09000000000015, 4150.0, 5228.91]
+
+reporting:
+  reports_directory: "reports"
+  run_report: "manhattan_stage3_to_stage6_risk_plots.md"
+  repository_report: "reports/manhattan_stage3_to_stage6_risk_plots_v010.md"
+  manifest: "risk_plots_manifest.json"
+  checksums: "SHA256SUMS"
+  reproduction_guide: "reports/manhattan_stage3_to_stage6_fire_pipeline_reproduction.md"
+  title: "Manhattan Stage 3-6 Risk-Plots Sidecar v010"

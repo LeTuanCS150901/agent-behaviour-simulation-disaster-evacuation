@@ -1,0 +1,45 @@
+# stage1.yaml — Study area & population
+
+total_population: 5000
+# int, > 0. Number of synthetic evacuees to generate at full scale.
+# source: assumption — needs validation.
+
+study_area_bbox_path: "data/toulouse_study_area.geojson"
+# path, required. Polygon defining the study area boundary.
+# source: agreed with research lead.
+
+zones_path: "data/toulouse_zones.geojson"
+# path, required. Zone/quartier polygons from Toulouse Métropole open data,
+# each tagged with a "zone_type" field of "red" or "blue".
+# source: original spec.
+
+census_data_path: "data/toulouse_census.csv"
+# path, required. Zone-level population counts (e.g. INSEE), used to proportionally
+# allocate synthetic agents across zones. eqasim-france is NOT used (Step 0 answer, scope).
+# source: census dataset.
+
+zone_count_tolerance_pct: 0.05
+# fraction, > 0. Allowed relative deviation between synthetic zone counts and census
+# targets before Stage 1's KPI is considered failed.
+# source: engineering default.
+
+zone_id_column: "zone_id"
+# string. Explicit zone identifier column in the zones GeoJSON.
+
+zone_type_column: "zone_type"
+# string. Explicit red/blue tag column in the zones GeoJSON.
+
+census_zone_id_column: "zone_id"
+# string. Explicit zone identifier column in the census CSV.
+
+census_population_column: "population"
+# string. Explicit census population count column in the census CSV.
+
+network_source_mode: "osm_xml"
+# enum {osm_xml}. Local OSM XML input mode for SUMO netconvert. No downloads.
+
+osm_input_path: "data/raw/toulouse.osm.xml"
+# path. Local Toulouse OSM XML input file for netconvert.
+
+netconvert_binary: "netconvert"
+# command/path. SUMO netconvert executable.

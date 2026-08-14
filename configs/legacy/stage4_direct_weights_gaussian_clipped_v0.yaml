@@ -1,0 +1,14 @@
+# Historical Stage 4 parameters preserved for reproducibility only.
+# This file is intentionally incompatible with the active softmax_c1_v1 schema.
+model_version: "direct_weights_gaussian_clipped_v0"
+epsilon: 0.01
+c: 0.30
+q: 0.30
+theta_2: 0.0
+beta_2: 0.0
+omega: 0.5
+beta_t: 1.0
+beta_a: 1.0
+panic_rate_distribution: "gaussian_clipped"
+panic_rate_mean: 0.5
+panic_rate_std: 0.2

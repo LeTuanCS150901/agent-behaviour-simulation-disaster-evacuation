@@ -1,0 +1,50 @@
+# manhattan_test.yaml — supplementary test-only config.
+#
+# Purpose: validate Stages 3-6 (Capacitated Shelter Allocation, Behavioral Shelter Choice,
+# Dynamic Route Choice, Fire Simulation) end-to-end on a small, hand-defined network and
+# demand set, BEFORE running against the full Toulouse network/population.
+#
+# This file REPLACES the role of Stage 1 (population synthesis) and Stage 2 (zone-based
+# demand generation) for this test only. It does not touch stage3.yaml/stage4.yaml/
+# stage5.yaml/stage6.yaml, which are reused unchanged (see supplementary document,
+# Section 2, for exactly what is bypassed vs. kept).
+
+network_file: "data/test/manhattan.net.xml"
+# path, required. Pre-existing Manhattan SUMO network file (already available).
+
+crs_override: "TEST_LOCAL"
+# string. For this synthetic test, the network's own internal SUMO coordinate frame is used
+# directly — there is no requirement to align with any real-world CRS, since this test
+# validates pipeline mechanics, not geographic accuracy. Overrides base.yaml's `crs` for this
+# run only. source: engineering default, test-only.
+
+origins:
+  # Each entry: a SUMO edge ID (must exist in manhattan.net.xml) + number of cars departing
+  # from it. This list REPLACES Stage 2's zone-based origin sampling for this test.
+  # Engineer: replace edge IDs below with real edges from the Manhattan network before running.
+  - edge_id: "384649121#0"
+    num_cars: 50
+  - edge_id: "350726028#0"
+    num_cars: 30
+  - edge_id: "464683329#0"
+    num_cars: 20
+
+destinations:
+  # Each entry: a SUMO edge ID acting as a shelter location + its capacity. This list
+  # REPLACES the "one centroid shelter per blue zone" simplification for this test, and feeds
+  # directly into Stage 3's p-median solve (same algorithm, smaller instance).
+  - edge_id: "542258337#0"
+    capacity: 60
+  - edge_id: "68325062#0"
+    capacity: 50
+
+ignition_edges:
+  # SUMO edge IDs used as a stand-in fire-ignition seed for Stage 6, since there is no red-zone
+  # polygon defined on this test network. This is NOT a realistic hazard scenario — it exists
+  # only to exercise the simfire -> SUMO .add.xml integration mechanics.
+  # source: assumption — test-only stand-in, flagged for engineer confirmation.
+  - "1061622295#0"
+  - "384178813#0"
+
+vehicle_class: "passenger"
+# string. Same meaning as stage2.yaml's vehicle_class; repeated here since Stage 2 is bypassed.

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BaseConfig",
+  "type": "object",
+  "required": ["random_seed", "crs", "sumo_network_file", "output_dir", "log_level", "validation_population_pct"],
+  "properties": {
+    "random_seed": {"type": "integer"},
+    "crs": {"type": "string", "pattern": "^EPSG:[0-9]+$"},
+    "sumo_network_file": {"type": "string", "minLength": 1},
+    "output_dir": {"type": "string", "minLength": 1},
+    "log_level": {"type": "string", "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]},
+    "validation_population_pct": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+  },
+  "additionalProperties": false
+}

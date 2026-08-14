@@ -1,0 +1,56 @@
+visualization_contract_version: "stage4_shelter_selection_v1"
+
+inputs:
+  network_file: "data/test/manhattan.net.xml"
+  vehicles_file: "outputs/test/manhattan/input/vehicles.parquet"
+  origins_file: "outputs/test/manhattan/input/origins.parquet"
+  destinations_file: "outputs/test/manhattan/input/destinations.parquet"
+  chosen_shelters_file: "outputs/test/manhattan/stage4_runs/softmax_c1_v1/q-0.30__cfg-21083ef1f874/chosen_shelters.parquet"
+  stage4_summary_file: "outputs/test/manhattan/stage4_runs/softmax_c1_v1/q-0.30__cfg-21083ef1f874/stage4_manhattan_summary.json"
+
+outputs:
+  directory: "outputs/test/manhattan/stage4_runs/softmax_c1_v1/q-0.30__cfg-21083ef1f874/visualizations/shelter_selection_v1"
+  figure_filename: "stage4_origin_to_chosen_shelter_arrows.png"
+  flow_table_filename: "stage4_origin_to_chosen_shelter_counts.csv"
+  manifest_filename: "stage4_shelter_selection_visualization_manifest.json"
+  overwrite_visualization_files: true
+
+plot:
+  title: "Stage 4 shelter selection: origins to chosen shelters"
+  subtitle_template: "{model_version}; q={q:.2f}; {people} Manhattan test evacuees"
+  figure_size_inches: [11.0, 13.0]
+  dpi: 200
+  font_family: "DejaVu Sans"
+  background_color: "#f3f3f3"
+  network_color: "#b8bec5"
+  network_line_width: 0.45
+  network_alpha: 0.72
+  origin_color: "#1769aa"
+  origin_marker: "o"
+  origin_marker_size: 105
+  origin_label_offset_points: [7, 7]
+  shelter_marker: "*"
+  shelter_marker_size: 260
+  shelter_colors: ["#d62728", "#2ca02c", "#9467bd", "#ff7f0e"]
+  shelter_label_offset_points: [8, -17]
+  arrow_min_line_width: 1.4
+  arrow_max_line_width: 7.0
+  arrow_alpha: 0.78
+  arrow_head_scale: 18
+  arrow_max_curvature: 0.09
+  count_label_font_size: 9
+  count_label_box_color: "#ffffff"
+  count_label_box_alpha: 0.88
+  selected_shelter_legend_location: "lower right"
+  show_axes: true
+  x_axis_label: "SUMO local x coordinate (m)"
+  y_axis_label: "SUMO local y coordinate (m)"
+  equal_axis: true
+  grid_enabled: true
+  grid_color: "#d8d8d8"
+  grid_alpha: 0.45
+  margin_fraction: 0.03
+  rendering_metadata:
+    Creator: "behaviour-eva Stage 4 shelter-selection visualization"
+    Description: "Aggregated origin-to-chosen-shelter flows; scientific values come from Stage 4 tables"
+    Software: "matplotlib"

@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage6Config",
+  "type": "object",
+  "required": [
+    "hazard_representation",
+    "fire_grid",
+    "cell_hazard_mapping",
+    "edge_cell_mapping",
+    "edge_survival",
+    "hazard_time_lookup",
+    "hazard_missing_data",
+    "simfire_output",
+    "mock_fire",
+    "poi_size"
+  ],
+  "properties": {
+    "hazard_representation": {"type": "string", "enum": ["cell_to_edge"]},
+    "fire_grid": {
+      "type": "object",
+      "required": ["cell_width", "cell_height", "padding", "row_origin"],
+      "properties": {
+        "cell_width": {"type": "number", "exclusiveMinimum": 0},
+        "cell_height": {"type": "number", "exclusiveMinimum": 0},
+        "padding": {"type": "number", "minimum": 0},
+        "row_origin": {"type": "string", "enum": ["top"]}
+      },
+      "additionalProperties": false
+    },
+    "cell_hazard_mapping": {
+      "type": "object",
+      "required": ["unburned", "burning", "burned"],
+      "properties": {
+        "unburned": {"type": "number", "minimum": 0, "maximum": 1},
+        "burning": {"type": "number", "minimum": 0, "maximum": 1},
+        "burned": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": true
+    },
+    "edge_cell_mapping": {
+      "type": "object",
+      "required": ["minimum_coverage_ratio", "incomplete_coverage_policy", "boundary_tolerance"],
+      "properties": {
+        "minimum_coverage_ratio": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "incomplete_coverage_policy": {"type": "string", "enum": ["error"]},
+        "boundary_tolerance": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "edge_survival": {
+      "type": "object",
+      "required": ["lambda", "numerical_epsilon"],
+      "properties": {
+        "lambda": {"type": "number", "exclusiveMinimum": 0},
+        "numerical_epsilon": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "hazard_time_lookup": {"type": "string", "enum": ["previous_snapshot"]},
+    "hazard_missing_data": {
+      "type": "object",
+      "required": ["missing_cell_policy", "missing_edge_policy"],
+      "properties": {
+        "missing_cell_policy": {"type": "string", "enum": ["error"]},
+        "missing_edge_policy": {"type": "string", "enum": ["error"]}
+      },
+      "additionalProperties": false
+    },
+    "simfire_output": {
+      "type": "object",
+      "required": ["storage_mode", "absent_cell_hazard"],
+      "properties": {
+        "storage_mode": {"type": "string", "enum": ["full", "sparse_nonzero"]},
+        "absent_cell_hazard": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "mock_fire": {
+      "type": "object",
+      "required": ["enabled", "simulation_duration", "snapshot_interval", "spread_rate"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "simulation_duration": {"type": "number", "exclusiveMinimum": 0},
+        "snapshot_interval": {"type": "number", "exclusiveMinimum": 0},
+        "spread_rate": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "poi_size": {"type": "number", "exclusiveMinimum": 0},
+    "simfire_config_path": {"type": "string"},
+    "ignition_edges_path": {"type": "string"},
+    "src_crs": {"type": "string"},
+    "sumo_crs": {"type": "string"},
+    "output_add_xml_path": {"type": "string"}
+  },
+  "additionalProperties": false
+}

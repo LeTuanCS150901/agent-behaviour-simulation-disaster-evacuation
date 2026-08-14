@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reusable Stage 3-6 fire-integration runtime configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["runtime_contract_version", "common_contract", "runtime_schema", "handoff", "stage_configs", "stage3_backend", "execution", "outputs", "rng", "sumo", "validation", "traffic_flow", "avoidance_analysis", "visualization", "reporting"],
+  "properties": {
+    "runtime_contract_version": {"type": "string", "minLength": 1},
+    "common_contract": {"$ref": "#/$defs/pathHashSchema"},
+    "runtime_schema": {"type": "string", "minLength": 1},
+    "handoff": {"$ref": "#/$defs/stringMap"},
+    "stage_configs": {"$ref": "#/$defs/stringMap"},
+    "stage3_backend": {
+      "type": "object", "additionalProperties": false,
+      "required": ["declared_config", "historical_declared_solver", "actual_backend", "authorized_substitution", "authorization_reference", "implementation_evidence", "regression_expectation"],
+      "properties": {
+        "declared_config": {"type": "string"}, "historical_declared_solver": {"type": "string"},
+        "actual_backend": {"type": "string"}, "authorized_substitution": {"const": true},
+        "authorization_reference": {"type": "string", "minLength": 1}, "implementation_evidence": {"type": "string"},
+        "regression_expectation": {"type": "string"}
+      }
+    },
+    "demand_override": {"$ref": "#/$defs/demandOverride"},
+    "execution": {"$ref": "#/$defs/execution"},
+    "outputs": {"$ref": "#/$defs/stringMap"},
+    "rng": {"type": "object", "additionalProperties": false, "required": ["derivation", "stage4_stream", "stage5_stream", "sumo_stream"], "properties": {"derivation": {"type":"string"}, "stage4_stream": {"$ref":"#/$defs/stream"}, "stage5_stream": {"$ref":"#/$defs/streamSpawn"}, "sumo_stream": {"$ref":"#/$defs/streamSpawn"}}},
+    "sumo": {"type":"object", "additionalProperties": false, "required":["headless_binary","gui_binary","expected_version","route_vehicle_type_id","no_step_log","quit_on_end","start","teleport_seconds","gui_settings_file","screenshot_backend","screenshot_view_id","screenshot_filename_template","random_seed_min","random_seed_max"], "properties":{"headless_binary":{"type":"string"},"gui_binary":{"type":"string"},"expected_version":{"type":"string"},"route_vehicle_type_id":{"type":"string"},"no_step_log":{"type":"boolean"},"quit_on_end":{"type":"boolean"},"start":{"type":"boolean"},"teleport_seconds":{"type":"number"},"gui_settings_file":{"type":["string","null"]},"screenshot_backend":{"type":"string"},"screenshot_view_id":{"type":"string"},"screenshot_filename_template":{"type":"string"},"random_seed_min":{"type":"integer","minimum":0},"random_seed_max":{"type":"integer","minimum":1}}},
+    "validation": {"type":"object", "additionalProperties": false, "required":["hash_algorithm","mapping_absolute_tolerance_m","mapping_relative_tolerance","hazard_absolute_tolerance","hazard_relative_tolerance","probability_tolerance","route_destination_required","reject_duplicate_keys"], "properties":{"hash_algorithm":{"type":"string"},"mapping_absolute_tolerance_m":{"type":"number","exclusiveMinimum":0},"mapping_relative_tolerance":{"type":"number","minimum":0},"hazard_absolute_tolerance":{"type":"number","exclusiveMinimum":0},"hazard_relative_tolerance":{"type":"number","minimum":0},"probability_tolerance":{"type":"number","exclusiveMinimum":0},"route_destination_required":{"type":"boolean"},"reject_duplicate_keys":{"type":"boolean"},"hazard_footprint":{"$ref":"#/$defs/hazardFootprint"}}},
+    "traffic_flow": {"type":"object", "additionalProperties":false, "required":["metric","window_seconds","interval_closure","include_unique_vehicle_count","include_complete_zero_flow_rows","output_filename"], "properties":{"metric":{"type":"string"},"window_seconds":{"type":"number","exclusiveMinimum":0},"interval_closure":{"type":"string"},"include_unique_vehicle_count":{"type":"boolean"},"include_complete_zero_flow_rows":{"type":"boolean"},"output_filename":{"type":"string"}}},
+    "avoidance_analysis": {"type":"object", "additionalProperties":false, "required":["enabled","comparison","zero_tolerance","risk_bins","output_filename"], "properties":{"enabled":{"type":"boolean"},"comparison":{"type":"string"},"zero_tolerance":{"type":"number","minimum":0},"risk_bins":{"type":"array","minItems":2,"items":{"type":"number"}},"output_filename":{"type":"string"}}},
+    "visualization": {"$ref":"#/$defs/visualization"},
+    "reporting": {"type":"object", "additionalProperties":false, "required":["reproduction_guide","title","formula_units"], "properties":{"reproduction_guide":{"type":"string"},"title":{"type":"string"},"formula_units":{"$ref":"#/$defs/stringMap"},"repository_report_path":{"type":"string","minLength":1},"contract_replacement":{"$ref":"#/$defs/contractReplacement"}}}
+  },
+  "$defs": {
+    "stringMap": {"type":"object", "minProperties":1, "additionalProperties":{"type":"string","minLength":1}},
+    "pathHashSchema": {"type":"object", "additionalProperties":false, "required":["path","expected_sha256","schema"], "properties":{"path":{"type":"string"},"expected_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"schema":{"type":"string"}}},
+    "departureGeneration": {"type":"object","additionalProperties":false,"required":["method","begin_seconds","end_seconds","inclusive_end","assignment_order"],"properties":{"method":{"type":"string","minLength":1},"begin_seconds":{"type":"number"},"end_seconds":{"type":"number"},"inclusive_end":{"type":"boolean"},"assignment_order":{"type":"string","minLength":1}}},
+    "demandConfig": {"type":"object","additionalProperties":false,"required":["total_vehicles","origins"],"properties":{"generation_mode":{"type":"string","minLength":1},"vehicle_class":{"type":"string","minLength":1},"total_vehicles":{"type":"integer","minimum":1},"departure_generation":{"$ref":"#/$defs/departureGeneration"},"origins":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["edge_id","num_cars"],"properties":{"edge_id":{"type":"string","minLength":1},"num_cars":{"type":"integer","minimum":1}}}}}},
+    "shelterConfig": {"type":"object","additionalProperties":false,"required":["total_capacity","destinations"],"properties":{"total_capacity":{"type":"integer","minimum":1},"destinations":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["edge_id","capacity"],"properties":{"edge_id":{"type":"string","minLength":1},"capacity":{"type":"integer","minimum":1}}}}}},
+    "demandOverride": {"type":"object","additionalProperties":false,"required":["enabled"],"properties":{"enabled":{"type":"boolean"},"reason":{"type":"string","minLength":1},"demand":{"$ref":"#/$defs/demandConfig"},"shelters":{"$ref":"#/$defs/shelterConfig"}},"allOf":[{"if":{"properties":{"enabled":{"const":true}},"required":["enabled"]},"then":{"required":["reason"],"anyOf":[{"required":["demand"]},{"required":["shelters"]}]}}]},
+    "execution": {"type":"object", "additionalProperties":false, "required":["run_id","output_root","fail_if_output_exists","result_classification","phases"], "properties":{"run_id":{"type":"string","minLength":1},"output_root":{"type":"string","minLength":1},"fail_if_output_exists":{"type":"boolean"},"result_classification":{"type":"array","minItems":1,"items":{"type":"string"}},"phases":{"$ref":"#/$defs/stringMap"},"modes":{"$ref":"#/$defs/executionModes"}}},
+    "executionModes": {"type":"object","additionalProperties":false,"required":["headless_enabled","gui_enabled","parity_enabled"],"properties":{"headless_enabled":{"type":"boolean"},"gui_enabled":{"type":"boolean"},"parity_enabled":{"type":"boolean"}}},
+    "hazardFootprint": {"type":"object","additionalProperties":false,"required":["peak_simultaneous_hazardous_edges","peak_time_seconds","distinct_edges_ever_hazardous","hazardous_edges_at_initial_time"],"properties":{"peak_simultaneous_hazardous_edges":{"type":"integer","minimum":0},"peak_time_seconds":{"type":"integer","minimum":0},"distinct_edges_ever_hazardous":{"type":"integer","minimum":0},"hazardous_edges_at_initial_time":{"type":"integer","minimum":0}}},
+    "contractReplacement": {"type":"object","additionalProperties":false,"required":["archive_path","previous_engineer_copy_path","displaced_sha256","displaced_size_bytes","parsed_yaml_identical_to_previous_engineer_copy","diff_summary"],"properties":{"archive_path":{"type":"string","minLength":1},"previous_engineer_copy_path":{"type":"string","minLength":1},"displaced_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"displaced_size_bytes":{"type":"integer","minimum":1},"parsed_yaml_identical_to_previous_engineer_copy":{"const":true},"diff_summary":{"type":"array","minItems":1,"items":{"type":"string","minLength":1}}}},
+    "stream": {"type":"object","additionalProperties":false,"required":["policy","name"],"properties":{"policy":{"type":"string"},"name":{"type":"string"}}},
+    "streamSpawn": {"type":"object","additionalProperties":false,"required":["name","spawn_key"],"properties":{"name":{"type":"string"},"spawn_key":{"type":"array","minItems":1,"items":{"type":"integer","minimum":0}}}},
+    "plot": {"type":"object","additionalProperties":true,"required":["enabled","filename_template"],"properties":{"enabled":{"type":"boolean"},"filename_template":{"type":"string","minLength":1}}},
+    "visualization": {"type":"object","additionalProperties":false,"required":["enabled","output_format","dpi","figure_size_inches","coordinate_frame","equal_axis","font_family","network_color","missing_color","evidence_times_seconds","gui_screenshot_times_seconds","fire_spread","edge_risk","traffic_flow","combined_flow_risk"],"properties":{"enabled":{"type":"boolean"},"output_format":{"type":"string"},"dpi":{"type":"integer","minimum":1},"figure_size_inches":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"number","exclusiveMinimum":0}},"coordinate_frame":{"type":"string"},"equal_axis":{"type":"boolean"},"font_family":{"type":"string"},"network_color":{"type":"string"},"missing_color":{"type":"string"},"evidence_times_seconds":{"type":"array","minItems":1,"items":{"type":"number"},"uniqueItems":true},"gui_screenshot_times_seconds":{"type":"array","items":{"type":"number"},"uniqueItems":true},"fire_spread":{"$ref":"#/$defs/plot"},"edge_risk":{"$ref":"#/$defs/plot"},"traffic_flow":{"$ref":"#/$defs/plot"},"combined_flow_risk":{"$ref":"#/$defs/plot"},"route_risk_fire_evolution":{"$ref":"#/$defs/routeRiskFireEvolution"}}},
+    "routeRiskFireEvolution": {
+      "type":"object","additionalProperties":false,
+      "required":["enabled","recording_interval_seconds","display_time_unit","vehicle_table_filename","derived_table_filename","figure_filename","output_format","dpi","figure_size_inches","subplot_height_ratios","subplot_spacing","mean_risk_color","mean_risk_line_style","mean_risk_line_width","mean_risk_label","mean_risk_y_label","mean_risk_legend_location","burning_state_label","burned_state_label","fire_state_column","burning_color","burned_color","burning_line_style","burned_line_style","fire_line_width","burning_label","burned_label","fire_count_y_label","fire_legend_location","title","x_axis_label","route_risk_axis_limits","fire_count_axis_policy","fire_count_headroom_fraction","missing_value_policy","numerical_tolerance","grid_color","grid_alpha","rendering_metadata"],
+      "properties": {
+        "enabled":{"const":true},"recording_interval_seconds":{"type":"number","exclusiveMinimum":0},
+        "display_time_unit":{"enum":["seconds","simulation_step"]},
+        "vehicle_table_filename":{"type":"string","minLength":1},"derived_table_filename":{"type":"string","minLength":1},
+        "figure_filename":{"type":"string","minLength":1},"output_format":{"enum":["png"]},"dpi":{"type":"integer","minimum":1},
+        "figure_size_inches":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"number","exclusiveMinimum":0}},
+        "subplot_height_ratios":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"number","exclusiveMinimum":0}},
+        "subplot_spacing":{"type":"number","minimum":0},"mean_risk_color":{"type":"string"},"mean_risk_line_style":{"type":"string"},
+        "mean_risk_line_width":{"type":"number","exclusiveMinimum":0},"mean_risk_label":{"type":"string","minLength":1},
+        "mean_risk_y_label":{"type":"string","minLength":1},"mean_risk_legend_location":{"type":"string","minLength":1},
+        "burning_state_label":{"type":"string","minLength":1},"burned_state_label":{"type":"string","minLength":1},
+        "fire_state_column":{"type":"string","minLength":1},"burning_color":{"type":"string"},"burned_color":{"type":"string"},
+        "burning_line_style":{"type":"string"},"burned_line_style":{"type":"string"},"fire_line_width":{"type":"number","exclusiveMinimum":0},
+        "burning_label":{"type":"string","minLength":1},"burned_label":{"type":"string","minLength":1},
+        "fire_count_y_label":{"type":"string","minLength":1},"fire_legend_location":{"type":"string","minLength":1},
+        "title":{"type":"string","minLength":1},"x_axis_label":{"type":"string","minLength":1},
+        "route_risk_axis_limits":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"number","minimum":0,"maximum":1}},
+        "fire_count_axis_policy":{"const":"auto_zero_to_data_max_with_headroom"},
+        "fire_count_headroom_fraction":{"type":"number","minimum":0},"missing_value_policy":{"const":"gap"},
+        "numerical_tolerance":{"type":"number","exclusiveMinimum":0},"grid_color":{"type":"string"},
+        "grid_alpha":{"type":"number","minimum":0,"maximum":1},"rendering_metadata":{"$ref":"#/$defs/stringMap"}
+      }
+    }
+  }
+}

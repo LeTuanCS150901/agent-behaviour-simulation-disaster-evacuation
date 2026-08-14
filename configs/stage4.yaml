@@ -1,0 +1,35 @@
+# stage4.yaml - Behavioral modeling
+
+model_version: "softmax_c1_v1"
+# Required discriminator for raw W scores, softmax S shares, and final V weights.
+
+epsilon: 0.01
+# Active constraint: 0 < epsilon < 1-q. Boundary W_s(0)=epsilon.
+
+c: 0.30
+# Join point satisfying 0 < c < 1.
+
+q: 0.30
+# Configurable, uncalibrated boundary parameter W_s(c)=1-q.
+# Historical reports also contain q=0.70 and must not be mixed with this run.
+
+probability_tolerance: 1.0e-9
+# Positive tolerance used only to validate probability identities.
+
+omega: 0.5
+# Global travel-time contribution; the angle contribution is 1-omega.
+
+beta_t: 1.0
+# Positive travel-time penalty sensitivity.
+
+beta_a: 1.0
+# Positive angle penalty sensitivity.
+
+panic_rate_distribution: "truncated_normal"
+# A normal distribution conditioned on [0,1]. gaussian_clipped is legacy only.
+
+panic_rate_mean: 0.5
+# Location parameter of the conditioned normal distribution, in [0,1].
+
+panic_rate_std: 0.2
+# Positive scale parameter of the conditioned normal distribution.

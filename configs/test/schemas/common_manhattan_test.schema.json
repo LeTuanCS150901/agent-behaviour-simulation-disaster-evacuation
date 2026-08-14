@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reusable common Stage 3-6 fire-integration contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["file_contract", "role_read_map", "shared_contract", "simfire_engineer_contract", "current_codebase_engineer_contract"],
+  "properties": {
+    "file_contract": {"type":"object","required":["canonical_filename","canonical_repository_path","contract_version","scenario_id","classification","hash_policy"]},
+    "role_read_map": {"type":"object","required":["simfire_engineer","current_codebase_engineer"]},
+    "shared_contract": {"type":"object","additionalProperties":false,"required":["reproducibility","network","clock","fire","hazard","visualization","artifact_contract","validation_targets"],"properties":{"reproducibility":{"type":"object"},"network":{"type":"object"},"clock":{"type":"object"},"fire":{"type":"object"},"hazard":{"type":"object"},"visualization":{"type":"object"},"artifact_contract":{"type":"object"},"validation_targets":{"type":"object"}}},
+    "simfire_engineer_contract": {"type":"object"},
+    "current_codebase_engineer_contract": {"type":"object","additionalProperties":false,"required":["current_codebase_paths","existing_stage_configs","demand","shelters","runtime","stage5_fire_integration","required_outputs","forbidden_work"],"properties":{"current_codebase_paths":{"type":"object"},"existing_stage_configs":{"type":"object"},"demand":{"type":"object"},"shelters":{"type":"object"},"runtime":{"type":"object"},"stage5_fire_integration":{"type":"object"},"required_outputs":{"type":"array"},"forbidden_work":{"type":"array"}}}
+  }
+}

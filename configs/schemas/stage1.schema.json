@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage1Config",
+  "type": "object",
+  "required": [
+    "total_population",
+    "study_area_bbox_path",
+    "zones_path",
+    "census_data_path",
+    "zone_count_tolerance_pct",
+    "zone_id_column",
+    "zone_type_column",
+    "census_zone_id_column",
+    "census_population_column",
+    "network_source_mode",
+    "osm_input_path",
+    "netconvert_binary"
+  ],
+  "properties": {
+    "total_population": {"type": "integer", "exclusiveMinimum": 0},
+    "study_area_bbox_path": {"type": "string", "minLength": 1},
+    "zones_path": {"type": "string", "minLength": 1},
+    "census_data_path": {"type": "string", "minLength": 1},
+    "zone_count_tolerance_pct": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+    "zone_id_column": {"type": "string", "minLength": 1},
+    "zone_type_column": {"type": "string", "minLength": 1},
+    "census_zone_id_column": {"type": "string", "minLength": 1},
+    "census_population_column": {"type": "string", "minLength": 1},
+    "network_source_mode": {"type": "string", "enum": ["osm_xml"]},
+    "osm_input_path": {"type": "string", "minLength": 1},
+    "netconvert_binary": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

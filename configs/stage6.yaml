@@ -1,0 +1,53 @@
+# stage6.yaml - Fire simulation and SUMO hazard integration
+
+hazard_representation: "cell_to_edge"
+# string. Approved Stage 6 representation. In this mode Stage 5 reads
+# edge_hazard_time_series.parquet, not edge_distance_to_fire.parquet.
+
+fire_grid:
+  cell_width: 20.0
+  cell_height: 20.0
+  padding: 50.0
+  row_origin: "top"
+
+cell_hazard_mapping:
+  unburned: 0.0
+  burning: 1.0
+  burned: 0.0
+
+edge_cell_mapping:
+  minimum_coverage_ratio: 0.999
+  incomplete_coverage_policy: "error"
+  boundary_tolerance: 1.0e-6
+
+edge_survival:
+  lambda: 1.0
+  numerical_epsilon: 1.0e-12
+
+hazard_time_lookup: "previous_snapshot"
+
+hazard_missing_data:
+  missing_cell_policy: "error"
+  missing_edge_policy: "error"
+
+simfire_output:
+  storage_mode: "full"
+  absent_cell_hazard: 0.0
+
+mock_fire:
+  enabled: true
+  simulation_duration: 180.0
+  snapshot_interval: 60.0
+  spread_rate: 0.8
+
+poi_size: 20.0
+# float, meters, > 0. Width/height of cell-center fire POI markers in the
+# visualization-only SUMO additional file.
+
+# Legacy fields retained for compatibility with older scripts/reports. They are
+# not used by the approved cell-to-edge hazard calculation.
+simfire_config_path: "data/simfire_toulouse_scenario.yaml"
+ignition_edges_path: "data/red_zone_top_bottom_edges.geojson"
+src_crs: "EPSG:4326"
+sumo_crs: "EPSG:2154"
+output_add_xml_path: "outputs/stage6/fire_hazard.add.xml"

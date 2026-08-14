@@ -1,0 +1,19 @@
+# base.yaml — settings shared across all stages.
+
+random_seed: 42            # int, global RNG seed for reproducibility. engineering default.
+
+crs: "EPSG:2154"            # Coordinate reference system used end-to-end downstream of Stage 1.
+                            # Default assumption: Lambert-93 (standard SUMO/France network CRS).
+                            # Must be overridden with the actual SUMO network's declared CRS
+                            # once Stage 1's netconvert output is finalized (Step 0 answer 8).
+
+sumo_network_file: "data/toulouse.net.xml"   # path, required. Produced by Stage 1.
+
+output_dir: "outputs/"      # path. All stage outputs are written under here, one subfolder per stage.
+
+log_level: "INFO"           # enum {DEBUG, INFO, WARNING, ERROR}. engineering default.
+
+validation_population_pct: 0.05
+# fraction (0,1]. Percentage of full population to use for initial validation runs
+# (Step 0 answer 9: "start with a small percentage for testing first"). Set to 1.0
+# for full-scale runs. assumption — needs validation on what "small" should be numerically.

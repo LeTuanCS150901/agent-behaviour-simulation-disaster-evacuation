@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage4SoftmaxC1V1Config",
+  "type": "object",
+  "required": [
+    "model_version", "epsilon", "c", "q", "probability_tolerance", "omega",
+    "beta_t", "beta_a", "panic_rate_distribution", "panic_rate_mean", "panic_rate_std"
+  ],
+  "properties": {
+    "model_version": {"type": "string", "const": "softmax_c1_v1"},
+    "epsilon": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+    "c": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+    "q": {"type": "number", "minimum": 0, "maximum": 1},
+    "probability_tolerance": {"type": "number", "exclusiveMinimum": 0},
+    "omega": {"type": "number", "minimum": 0, "maximum": 1},
+    "beta_t": {"type": "number", "exclusiveMinimum": 0},
+    "beta_a": {"type": "number", "exclusiveMinimum": 0},
+    "panic_rate_distribution": {"type": "string", "const": "truncated_normal"},
+    "panic_rate_mean": {"type": "number", "minimum": 0, "maximum": 1},
+    "panic_rate_std": {"type": "number", "exclusiveMinimum": 0}
+  },
+  "additionalProperties": false,
+  "_note": "The active constraint 0 < epsilon < 1-q and finite-value checks are enforced by scripts/validate_config.py."
+}
