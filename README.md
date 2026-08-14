@@ -58,24 +58,6 @@ The current graph report identifies `ResolvedIntegrationConfig`, table I/O, risk
 
 ## Key scientific formulas
 
-Stage 4 shelter choice uses:
-
-```text
-P_i(j) = V_g(x_i) P_g(i,j) + V_s(x_i) P_s(i,j) + V_p(x_i) P_p(i,j)
-```
-
-Here, `W_s/W_g` are raw scores, `S_s/S_g` are stable softmax shares of non-panic behaviour, and only `V_p/V_s/V_g` are probabilities. The panic rate is sampled once from a seeded truncated normal and is persisted unchanged for Stage 5.
-
-The active cell-to-edge hazard contract uses:
-
-```text
-H_e(t) = Σ_c h_c(t) · ℓ_e,c / L_e
-S_e(t) = exp(-λ · H_e(t))
-S_k(t) = exp(Σ_e log(clip(S_e(t), ε, 1)))
-R_k(t) = 1 - S_k(t)
-```
-
-Route-choice utility combines normalized travel time and route risk. Scientific coefficients and tolerances come from validated configuration; they are not hidden command-line defaults.
 
 ## Getting started
 
